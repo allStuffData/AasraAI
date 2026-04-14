@@ -9,6 +9,7 @@ import { sttService } from '@/services/stt.service';
 import { ttsService } from '@/services/tts.service';
 import { llmService } from '@/services/llm.service';
 import { contactsService } from '@/services/contacts.service';
+import { networkService } from '@/services/network.service';
 
 function useWaveAnimation() {
   const values = useRef([new Animated.Value(0.55), new Animated.Value(0.75), new Animated.Value(0.4)]).current;
@@ -52,6 +53,7 @@ export default function ConversationScreen() {
   const endConversation = useConversationStore((state) => state.endConversation);
   const appendTurn = useConversationStore((state) => state.appendTurn);
   const setLastIntent = useConversationStore((state) => state.setLastIntent);
+  const setPendingIntent = useConversationStore((state) => state.setPendingIntent);
   const waveValues = useWaveAnimation();
   const isProcessing = useRef(false);
 
@@ -75,6 +77,14 @@ export default function ConversationScreen() {
         setResponse('');
 
         try {
+          const isOnline = await networkService.hasInternetConnection();
+          if (!isOnline) {
+            const offlineMessage = networkService.getOfflineMessage('en');
+            setResponse(offlineMessage);
+            await ttsService.speak(offlineMessage, 'en-IN');
+            return;
+          }
+
           let streamedResponse = '';
           const intent = await llmService.streamIntent(
             value,
@@ -99,6 +109,7 @@ export default function ConversationScreen() {
           };
 
           setLastIntent(resolvedIntent);
+          setPendingIntent(resolvedIntent.needsConfirmation ? resolvedIntent : null);
           appendTurn({
             role: 'assistant',
             content: resolvedIntent.spokenResponse,
@@ -131,14 +142,18 @@ export default function ConversationScreen() {
       },
     });
 
-    void sttService.startListening();
+    void sttService.startListening().catch(async (error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Microphone permission is required to start listening.';
+      setResponse(message);
+      await ttsService.speak(message);
+    });
 
     return () => {
       subscription.remove();
       void sttService.stopListening();
       void ttsService.stop();
     };
-  }, [appendTurn, router, setLastIntent, setResponse, setTranscript]);
+  }, [appendTurn, router, setLastIntent, setPendingIntent, setResponse, setTranscript]);
 
   const bars = useMemo(
     () =>

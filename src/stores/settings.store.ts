@@ -11,12 +11,14 @@ type SettingsState = {
   apiKey: string;
   caregiverPin: string;
   primarySosContactId: string;
+  callEmergencyNumberInSos: boolean;
   loadSettings: () => Promise<void>;
   setLanguagePreference: (value: LanguagePreference) => Promise<void>;
   setTtsRate: (value: number) => Promise<void>;
   setApiKey: (value: string) => Promise<void>;
   setCaregiverPin: (value: string) => Promise<void>;
   setPrimarySosContact: (value: string) => Promise<void>;
+  setCallEmergencyNumberInSos: (value: boolean) => Promise<void>;
 };
 
 const writeSetting = (key: string, value: string) => {
@@ -33,6 +35,7 @@ export const settingsStore = create<SettingsState>((set) => ({
   apiKey: '',
   caregiverPin: '1234',
   primarySosContactId: '',
+  callEmergencyNumberInSos: false,
   loadSettings: async () => {
     const rows = database.getAllSync<{ key: string; value: string }>('SELECT key, value FROM settings;');
     const values = Object.fromEntries(rows.map((row) => [row.key, row.value]));
@@ -43,6 +46,7 @@ export const settingsStore = create<SettingsState>((set) => ({
       ttsRate: Number(values.ttsRate ?? '0.95'),
       caregiverPin: values.caregiverPin ?? '1234',
       primarySosContactId: values.primarySosContactId ?? '',
+      callEmergencyNumberInSos: values.callEmergencyNumberInSos === '1',
       apiKey,
     });
   },
@@ -65,6 +69,10 @@ export const settingsStore = create<SettingsState>((set) => ({
   setPrimarySosContact: async (value) => {
     writeSetting('primarySosContactId', value);
     set({ primarySosContactId: value });
+  },
+  setCallEmergencyNumberInSos: async (value) => {
+    writeSetting('callEmergencyNumberInSos', value ? '1' : '0');
+    set({ callEmergencyNumberInSos: value });
   },
 }));
 

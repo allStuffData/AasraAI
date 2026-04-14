@@ -17,6 +17,8 @@ type ConversationState = {
   spokenResponse: string;
   history: ChatTurn[];
   lastIntent: ParsedIntent | null;
+  pendingIntent: ParsedIntent | null;
+  isExecutingAction: boolean;
   inactivityTimer: ReturnType<typeof setTimeout> | null;
   beginConversation: () => void;
   endConversation: () => void;
@@ -24,6 +26,8 @@ type ConversationState = {
   setSpokenResponse: (value: string) => void;
   appendTurn: (turn: Omit<ChatTurn, 'id' | 'createdAt'>) => void;
   setLastIntent: (intent: ParsedIntent | null) => void;
+  setPendingIntent: (intent: ParsedIntent | null) => void;
+  setExecutingAction: (value: boolean) => void;
   resetContext: () => void;
   restartInactivityTimer: () => void;
 };
@@ -51,6 +55,8 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   spokenResponse: '',
   history: [],
   lastIntent: null,
+  pendingIntent: null,
+  isExecutingAction: false,
   inactivityTimer: null,
   beginConversation: () => {
     set({ isActive: true });
@@ -90,6 +96,8 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     }));
   },
   setLastIntent: (intent) => set({ lastIntent: intent }),
+  setPendingIntent: (intent) => set({ pendingIntent: intent }),
+  setExecutingAction: (value) => set({ isExecutingAction: value }),
   resetContext: () => {
     if (get().inactivityTimer) {
       clearTimeout(get().inactivityTimer);
@@ -101,6 +109,8 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
       liveTranscript: '',
       spokenResponse: '',
       lastIntent: null,
+      pendingIntent: null,
+      isExecutingAction: false,
       inactivityTimer: null,
       isActive: false,
     });
@@ -117,4 +127,3 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     set({ inactivityTimer: timer });
   },
 }));
-

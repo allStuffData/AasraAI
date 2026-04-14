@@ -25,7 +25,8 @@
       "expo-router",
       "expo-sqlite",
       "expo-secure-store",
-      "expo-contacts"
+      "expo-contacts",
+      "expo-location"
     ],
     "experiments": {
       "typedRoutes": true

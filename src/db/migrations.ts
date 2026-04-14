@@ -26,6 +26,26 @@ export const initializeDatabase = async () => {
 
       db.runSync('INSERT INTO __migrations (version) VALUES (?)', [1]);
     }
+
+    if (version < 2) {
+      db.execSync(
+        `CREATE TABLE IF NOT EXISTS sms_log (
+          id TEXT PRIMARY KEY NOT NULL,
+          contact_id TEXT,
+          contact_name TEXT NOT NULL,
+          phone_number TEXT NOT NULL,
+          message_body TEXT NOT NULL,
+          direction TEXT NOT NULL DEFAULT 'outgoing',
+          delivery_status TEXT NOT NULL DEFAULT 'unknown',
+          created_at TEXT NOT NULL
+        );`,
+      );
+      db.execSync('CREATE INDEX IF NOT EXISTS idx_sms_log_created_at ON sms_log(created_at DESC);');
+      db.runSync(
+        `INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES (?, ?, ?)`,
+        ['callEmergencyNumberInSos', '0', new Date().toISOString()],
+      );
+      db.runSync('INSERT INTO __migrations (version) VALUES (?)', [2]);
+    }
   });
 };
-

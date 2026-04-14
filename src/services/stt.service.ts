@@ -1,5 +1,7 @@
 import SpeechRecognition from 'expo-speech-recognition';
 
+import { permissionsService } from '@/services/permissions.service';
+
 type STTCallbacks = {
   onPartialResult?: (text: string) => void;
   onFinalResult?: (text: string) => void;
@@ -40,13 +42,7 @@ export const sttService = {
   },
 
   async ensurePermissions() {
-    const current = await SpeechRecognition.getPermissionsAsync?.();
-    if (current?.granted) {
-      return true;
-    }
-
-    const requested = await SpeechRecognition.requestPermissionsAsync?.();
-    return requested?.granted ?? false;
+    return permissionsService.ensureMicrophoneAccess();
   },
 
   async startListening(language = 'hi-IN') {
@@ -72,4 +68,3 @@ export const sttService = {
     await SpeechRecognition.abort();
   },
 };
-

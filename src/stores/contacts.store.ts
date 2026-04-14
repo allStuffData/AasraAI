@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Alert } from 'react-native';
 
 import { contactsService, type AppContact, type ContactCreateInput } from '@/services/contacts.service';
 
@@ -43,8 +44,15 @@ export const useContactsStore = create<ContactsState>((set, get) => ({
       return;
     }
 
+    if (!contact.isSos) {
+      const sosCount = get().contacts.filter((entry) => entry.isSos).length;
+      if (sosCount >= 5) {
+        Alert.alert('SOS limit reached', 'You can add up to 5 SOS contacts only.');
+        return;
+      }
+    }
+
     await contactsService.updateContact(id, { isSos: !contact.isSos });
     await get().loadContacts();
   },
 }));
-

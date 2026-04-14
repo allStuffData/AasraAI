@@ -24,13 +24,13 @@
 
 ## Phase 3: Core Features — Call, Text, SOS (Weeks 5-6)
 
-- [ ] **3.1** Call service (dialer intent via expo-linking)
-- [ ] **3.2** SMS service (send + read via expo-sms)
-- [ ] **3.3** SOS service (call + SMS + GPS location)
-- [ ] **3.4** Confirmation screen (Yes/No, auto-timeout 10s)
-- [ ] **3.5** Call history logging (SQLite)
-- [ ] **3.6** Offline fallback (tap-to-call grid when no internet)
-- [ ] **3.7** Permission handling (contextual, bilingual explanations)
+- [x] **3.1** Call service (dialer intent via expo-linking)
+- [x] **3.2** SMS service (send + read via expo-sms)
+- [x] **3.3** SOS service (call + SMS + GPS location)
+- [x] **3.4** Confirmation screen (Yes/No, auto-timeout 10s)
+- [x] **3.5** Call history logging (SQLite)
+- [x] **3.6** Offline fallback (network detection + tap-to-call grid)
+- [x] **3.7** Permission handling (contextual, bilingual explanations)
 
 ## Phase 4: Testing & Polish (Weeks 7-8)
 
@@ -43,5 +43,5 @@
 
 ---
 
-*Last updated: 2026-04-14 13:25 PDT*
-*Status: Phase 1 + 2 COMPLETE ✅ — Ready for Phase 3*
+*Last updated: 2026-04-14 13:34 PDT*
+*Status: Phase 1+2+3 COMPLETE ✅ — Ready for Phase 4*

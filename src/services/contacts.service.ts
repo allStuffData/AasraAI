@@ -1,6 +1,7 @@
 import * as Contacts from 'expo-contacts';
 
 import { database } from '@/db/migrations';
+import { permissionsService } from '@/services/permissions.service';
 import { fuzzyMatchContact } from '@/utils/fuzzy-match';
 
 export type AppContact = {
@@ -111,8 +112,8 @@ export const contactsService = {
   },
 
   async importFromDevice() {
-    const permission = await Contacts.requestPermissionsAsync();
-    if (!permission.granted) {
+    const granted = await permissionsService.ensureContactsAccess();
+    if (!granted) {
       return { addedCount: 0 };
     }
 
@@ -159,4 +160,3 @@ export const contactsService = {
     return fuzzyMatchContact(query, contacts);
   },
 };
-

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { useContactsStore } from '@/stores/contacts.store';
 import { useConversationStore } from '@/stores/conversation.store';
 import { ttsService } from '@/services/tts.service';
 import { callService } from '@/services/call.service';
+import { networkService } from '@/services/network.service';
 
 const formatClock = (date: Date) =>
   new Intl.DateTimeFormat('en-US', {
@@ -19,10 +20,39 @@ export default function HomeScreen() {
   const router = useRouter();
   const favoriteContacts = useContactsStore((state) => state.favoriteContacts);
   const beginConversation = useConversationStore((state) => state.beginConversation);
+  const [isOnline, setIsOnline] = useState(true);
 
   const statusTime = useMemo(() => formatClock(new Date()), []);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const refreshNetwork = async () => {
+      const online = await networkService.hasInternetConnection();
+      if (mounted) {
+        setIsOnline(online);
+      }
+    };
+
+    void refreshNetwork();
+    const interval = setInterval(() => {
+      void refreshNetwork();
+    }, 15000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
   const handleTalk = async () => {
+    if (!isOnline) {
+      const message = networkService.getOfflineMessage('en');
+      Alert.alert('Voice Offline / Voice band hai', message);
+      await ttsService.speak(message, 'en-IN');
+      return;
+    }
+
     beginConversation();
     await ttsService.stop();
     router.push('/conversation');
@@ -36,15 +66,19 @@ export default function HomeScreen() {
     }
 
     Alert.alert('Calling contact', `Opening dialer for ${contact.displayName}.`);
-    await callService.startCall(contact.primaryPhone);
+    await callService.startCall({
+      phoneNumber: contact.primaryPhone,
+      contactId: contact.id,
+      contactName: contact.displayName,
+    });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.statusBar}>
         <Text style={styles.statusText}>{statusTime}</Text>
-        <Text style={styles.statusText}>Network Ready</Text>
-        <Text style={styles.statusText}>Voice Online</Text>
+        <Text style={styles.statusText}>{isOnline ? 'Network Ready' : 'Offline Mode'}</Text>
+        <Text style={styles.statusText}>{isOnline ? 'Voice Online' : 'Voice Disabled'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -57,12 +91,21 @@ export default function HomeScreen() {
           accessibilityHint="Starts listening for your voice command."
           accessibilityLabel="Talk to Aasra"
           onPress={() => void handleTalk()}
-          style={({ pressed }) => [styles.talkButton, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.talkButton, !isOnline && styles.talkButtonDisabled, pressed && styles.pressed]}
         >
           <MaterialIcons name="keyboard-voice" size={80} color={theme.colors.surface} />
-          <Text style={styles.talkButtonTitle}>Talk to Aasra</Text>
-          <Text style={styles.talkButtonSubtitle}>Tap once and speak clearly</Text>
+          <Text style={styles.talkButtonTitle}>{isOnline ? 'Talk to Aasra' : 'Voice Offline'}</Text>
+          <Text style={styles.talkButtonSubtitle}>
+            {isOnline ? 'Tap once and speak clearly' : 'Internet nahi hai. Neeche tap karke call karein.'}
+          </Text>
         </Pressable>
+
+        {!isOnline ? (
+          <View style={styles.offlineCard}>
+            <Text style={styles.offlineTitle}>Internet unavailable / Internet nahi hai</Text>
+            <Text style={styles.offlineText}>{networkService.getOfflineMessage('en')}</Text>
+          </View>
+        ) : null}
 
         <View style={styles.favoritesSection}>
           <Text style={styles.sectionTitle}>Favorite Contacts</Text>
@@ -168,6 +211,9 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 8,
   },
+  talkButtonDisabled: {
+    backgroundColor: theme.colors.textMuted,
+  },
   talkButtonTitle: {
     fontFamily: theme.fonts.heading,
     fontSize: theme.fontSizes.heading,
@@ -227,6 +273,26 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: theme.fontSizes.body,
     color: theme.colors.textMuted,
+  },
+  offlineCard: {
+    marginTop: theme.spacing.lg,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.card,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.lg,
+  },
+  offlineTitle: {
+    fontFamily: theme.fonts.heading,
+    fontSize: theme.fontSizes.subheading,
+    color: theme.colors.text,
+  },
+  offlineText: {
+    marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.body,
+    fontSize: theme.fontSizes.body,
+    color: theme.colors.textMuted,
+    lineHeight: 28,
   },
   avatarCircle: {
     width: 80,

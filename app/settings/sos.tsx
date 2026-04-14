@@ -7,13 +7,31 @@ import { useSettingsStore } from '@/stores/settings.store';
 export default function SosSettingsScreen() {
   const contacts = useContactsStore((state) => state.contacts);
   const primarySosContactId = useSettingsStore((state) => state.primarySosContactId);
+  const callEmergencyNumberInSos = useSettingsStore((state) => state.callEmergencyNumberInSos);
   const setPrimarySosContact = useSettingsStore((state) => state.setPrimarySosContact);
+  const setCallEmergencyNumberInSos = useSettingsStore((state) => state.setCallEmergencyNumberInSos);
   const toggleContactSos = useContactsStore((state) => state.toggleSos);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>SOS Configuration</Text>
       <Text style={styles.subtitle}>Choose up to 5 contacts who should receive emergency alerts.</Text>
+
+      <View style={styles.contactCard}>
+        <View style={styles.contactCopy}>
+          <Text style={styles.contactName}>Use 112 for SOS call</Text>
+          <Text style={styles.contactMeta}>When enabled, SOS will call 112 instead of your primary SOS contact and still text all SOS contacts.</Text>
+        </View>
+
+        <Pressable
+          onPress={() => void setCallEmergencyNumberInSos(!callEmergencyNumberInSos)}
+          style={[styles.actionChip, callEmergencyNumberInSos && styles.primaryChip]}
+        >
+          <Text style={[styles.actionChipLabel, callEmergencyNumberInSos && styles.primaryChipLabel]}>
+            {callEmergencyNumberInSos ? 'Calling 112' : 'Call Primary Contact'}
+          </Text>
+        </Pressable>
+      </View>
 
       {contacts.map((contact) => {
         const isPrimary = primarySosContactId === contact.id;
@@ -131,4 +149,3 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
 });
-
