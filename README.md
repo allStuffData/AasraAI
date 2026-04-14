@@ -37,9 +37,17 @@ Seniors struggle with smartphones. Small text, complex UIs, multi-step workflows
 | **AI/LLM** | Z.AI GLM-5.1 (streaming, OpenAI-compatible) |
 | **Build** | EAS Build |
 
-## 📱 Screenshots
+## 📱 Wireframes (via Google Stitch)
 
-> *Coming soon — MVP in development*
+| Home Screen | Conversation |
+|:---:|:---:|
+| ![Home Screen](docs/wireframes/home.png) | ![Conversation](docs/wireframes/conversation.png) |
+| *Voice button, SOS, favorites grid* | *Waveform, transcription, response* |
+
+| Confirmation | Settings |
+|:---:|:---:|
+| ![Confirmation](docs/wireframes/confirmation.png) | ![Settings](docs/wireframes/settings.png) |
+| *Haan/Nahi with auto-timeout* | *PIN-protected caregiver config* |
 
 ## 🚀 Getting Started
 
