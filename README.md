@@ -135,13 +135,6 @@ AasraAI/
 
 This project is licensed under the MIT License.
 
-## 👤 Author
-
-**Gopal Kumar**
-- UC Berkeley MEng (IEOR, FinTech)
-- ex-Microsoft, ex-JPMorgan
-- [LinkedIn](https://linkedin.com/in/gopalkumar)
-
 ---
 
 <div align="center">
