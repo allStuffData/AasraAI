@@ -84,7 +84,7 @@ const showRationaleOnce = async (permission: PermissionKey, language?: Supported
   const selected = copy[resolveLanguage(language)][permission];
 
   await new Promise<void>((resolve) => {
-    Alert.alert(selected.title, selected.message, [{ text: 'OK', onPress: resolve }], {
+    Alert.alert(selected.title, selected.message, [{ text: 'OK', onPress: () => resolve() }], {
       cancelable: false,
     });
   });

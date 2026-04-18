@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   smallChoiceLabelActive: {
     color: theme.colors.primary,
   },
-  input: {
+  inputField: {
     marginTop: theme.spacing.md,
     minHeight: 72,
     borderRadius: theme.radius.lg,

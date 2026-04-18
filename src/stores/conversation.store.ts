@@ -63,8 +63,9 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     get().restartInactivityTimer();
   },
   endConversation: () => {
-    if (get().inactivityTimer) {
-      clearTimeout(get().inactivityTimer);
+    const timer = get().inactivityTimer;
+    if (timer) {
+      clearTimeout(timer);
     }
 
     set({
@@ -99,8 +100,9 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   setPendingIntent: (intent) => set({ pendingIntent: intent }),
   setExecutingAction: (value) => set({ isExecutingAction: value }),
   resetContext: () => {
-    if (get().inactivityTimer) {
-      clearTimeout(get().inactivityTimer);
+    const timer = get().inactivityTimer;
+    if (timer) {
+      clearTimeout(timer);
     }
 
     database.runSync('DELETE FROM chat_history');
@@ -116,8 +118,9 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
     });
   },
   restartInactivityTimer: () => {
-    if (get().inactivityTimer) {
-      clearTimeout(get().inactivityTimer);
+    const oldTimer = get().inactivityTimer;
+    if (oldTimer) {
+      clearTimeout(oldTimer);
     }
 
     const timer = setTimeout(() => {
